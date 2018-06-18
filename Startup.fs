@@ -31,9 +31,9 @@ type Startup private () =
         
         services.AddAuthentication(
                             // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
-                            fun (options: AuthenticationOptions) ->
-                                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme |> ignore
-                                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme |> ignore
+                            fun (options) ->
+                                (options.DefaultAuthenticateScheme <- JwtBearerDefaults.AuthenticationScheme) |> ignore
+                                (options.DefaultChallengeScheme <- JwtBearerDefaults.AuthenticationScheme) |> ignore
                         )
                         .AddBotAuthentication(credentialProvider) |> ignore
         services.AddSingleton(typedefof<ICredentialProvider>, credentialProvider) |> ignore

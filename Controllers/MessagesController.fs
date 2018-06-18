@@ -11,23 +11,18 @@ open Microsoft.Extensions.Configuration
 
 [<Route("api/[controller]")>]
 [<ApiController>]
-type MessagesController private () =
+type MessagesController (configuration: IConfiguration) =
     inherit ControllerBase()
-    
-    new (configuration: IConfiguration) as this =
-        MessagesController() then
-        this._Configuration <- configuration
     
     [<HttpGet>]
     member this.Get () =
-        let values = [|"value1"; "value2"|]
-        ActionResult<string[]>(values)
+        this.Ok "hello messages controller"
 
     [<Authorize(Roles = "Bot")>]
     [<HttpPost>]
     member this.Post ([<FromBody>] activity: Activity) =
         async {
-            let appCredentials = new MicrosoftAppCredentials(this._Configuration)
+            let appCredentials = new MicrosoftAppCredentials(configuration)
             let client = new ConnectorClient(new Uri(activity.ServiceUrl), appCredentials)
             let replyText = this.GetReplyFor activity.Type activity.Text
             let reply = activity.CreateReply replyText
@@ -35,18 +30,11 @@ type MessagesController private () =
             client.Conversations.ReplyToActivityAsync reply 
             |> Async.AwaitTask 
             |> ignore
-        } |> Async.StartAsTask
+        } |> Async.StartAsTask |> ignore      
         
-        let values = [|"value1"; "value2"|]
-        ActionResult<string[]>(values)
-        
-//        ActionResult<unit>()
-//        Ok() |> ignore
+        this.Ok ()
         
     member private this.GetReplyFor activityType text =
         match activityType with
             | ActivityTypes.Message -> String.Format("echo: {0}", text)
-            | _ -> String.Format("activity type: {0}", text)
-        
-        
-    member val _Configuration : IConfiguration = null with get, set
+            | _ -> String.Format("activity type: {0}", text)        
