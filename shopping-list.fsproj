@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\HomeController.fs" />
+    <Compile Include="Controllers\MessagesController.fs" />
+    <Compile Include="Models/ErrorViewModel.fs" />
+    <Compile Include="Startup.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Bot.Connector.AspNetCore">
+      <Version>2.0.1.7</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>
