@@ -47,15 +47,9 @@ type Startup private () =
             app.UseExceptionHandler("/Home/Error") |> ignore
             app.UseHsts() |> ignore
 
-        app.UseHttpsRedirection() |> ignore
         app.UseStaticFiles() |> ignore
         app.UseAuthentication() |> ignore
 
         app.UseMvc() |> ignore
-//        app.UseMvc(fun routes ->
-//            routes.MapRoute(
-//                name = "default",
-//                template = "{controller=Home}/{action=Index}/{id?}") |> ignore
-//            ) |> ignore
 
     member val _Configuration : IConfiguration = null with get, set

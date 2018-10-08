@@ -11,6 +11,7 @@ open Microsoft.Extensions.Configuration
 
 open System.Reflection.Metadata
 open Workflow
+open Patterns
                     
 [<Route("api/[controller]")>]
 [<ApiController>]
@@ -18,13 +19,11 @@ type MessagesController (configuration: IConfiguration) =
     inherit ControllerBase()
     
     let handleCreateNewList command =
-        printfn "handle create %A" command
         match command with
             | User (CreateNewList listName) -> Some "create new list"
             | _ -> None
             
     let handleSystemCommand command =
-        printfn "system %A" command
         match command with
             | System _ -> Some "system command"
             | _ -> None
@@ -42,6 +41,8 @@ type MessagesController (configuration: IConfiguration) =
         let client = new ConnectorClient(new Uri(activity.ServiceUrl), appCredentials)
         let botCommand = this.ToBotCommand activity
         
+        printfn "=== parsed into: %A" botCommand
+        
         match workflow botCommand with
             | Some replyText ->
                 async { 
@@ -56,16 +57,16 @@ type MessagesController (configuration: IConfiguration) =
         
     member private this.ToBotCommand activity: BotCommand =
         match activity.Type with
-            | ActivityTypes.Message -> 
-                if activity.Text.StartsWith "/" || activity.Text.StartsWith "$" then
-                    match activity.Text.Substring 1 with
-                        | "create" -> User (CreateNewList <| activity.Text.Substring 7)
-                        | _ -> User NotSupported
-                else
-                    NotACommand
+            | ActivityTypes.Message when this.IsValidCommand(activity.Text) -> 
+                match activity.Text with
+                    | Prefix "/create" _ -> User (CreateNewList <| activity.Text.Substring 7)
+                    | _ -> User NotSupported
             | ActivityTypes.ContactRelationUpdate ->
                 if activity.Action = "add" then
                     System BotAddedToConversation
                 else 
                     System BotRemovedFromConversation
             | _ -> NotACommand
+            
+    member private this.IsValidCommand (text: string) =
+        text.StartsWith "/" || text.StartsWith "$"
